@@ -1,10 +1,10 @@
 "use client";
 
 import { ArrowDownCircleIcon } from "@heroicons/react/24/outline";
-import { collection, orderBy, query } from "firebase/firestore";
-import { useSession } from "next-auth/react";
-import { useCollection } from "react-firebase-hooks/firestore";
-import { db } from "../firebase/firebase";
+// import { collection, orderBy, query } from "firebase/firestore";
+// import { useSession } from "next-auth/react";
+// import { useCollection } from "react-firebase-hooks/firestore";
+// import { db } from "../firebase/firebase";
 import Message from "./Message";
 
 type Props = {
@@ -12,25 +12,29 @@ type Props = {
 };
 
 const Chat = ({ chatId }: Props) => {
-  const { data: session } = useSession();
-  const [messages] = useCollection(
-    session &&
-      query(
-        collection(
-          db,
-          "users",
-          session.user?.email!,
-          "chats",
-          chatId,
-          "messages"
-        ),
-        orderBy("createdAt", "asc")
-      )
-  );
+  // const { data: session } = useSession();
+  // const [messages] = useCollection(
+  //   session &&
+  //     query(
+  //       collection(
+  //         db,
+  //         "users",
+  //         session.user?.email!,
+  //         "chats",
+  //         chatId,
+  //         "messages"
+  //       ),
+  //       orderBy("createdAt", "asc")
+  //     )
+  // );
+  const messages = [{
+    id: 0,
+    message: "Hello"
+  }];
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden">
-      {messages?.empty && (
+      {messages && (
         <>
           <p className="mt-10 text-center text-white">
             Type a prompt in below to get started!
@@ -39,8 +43,8 @@ const Chat = ({ chatId }: Props) => {
         </>
       )}
 
-      {messages?.docs.map((message) => (
-        <Message key={message.id} message={message.data()} />
+      {messages.map((message) => (
+        <Message key={message.id} message={message.message} />
       ))}
     </div>
   );

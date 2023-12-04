@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import query from "../../lib/queryApi";
 import admin from "firebase-admin";
-import { adminDB } from "../../firebase/firebaseAdmin";
+// import { adminDB } from "../../firebase/firebaseAdmin";
 
 type Data = {
   answer: string;
@@ -35,13 +35,13 @@ export default async function handler(
     },
   };
 
-  await adminDB
-    .collection("users")
-    .doc(session?.user?.email)
-    .collection("chats")
-    .doc(chatId)
-    .collection("messages")
-    .add(message);
+  // await adminDB
+  //   .collection("users")
+  //   .doc(session?.user?.email)
+  //   .collection("chats")
+  //   .doc(chatId)
+  //   .collection("messages")
+  //   .add(message);
 
   res.status(200).json({ answer: message.text });
 }
