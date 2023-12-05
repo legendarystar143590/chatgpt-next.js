@@ -12,6 +12,7 @@ import { Configuration, OpenAIApi } from "openai";
 const Chat = () => {
   const [messages, setMessages] = useState([{
     id: 0,
+    sender: "bot",
     message: "I am a chat gpt."
   }]);
   const [prePrompt, setPrePrompt] = useState([
@@ -41,7 +42,8 @@ const Chat = () => {
 
   const sendMessage = () => {
     setMessages(prev => [...prev, {
-      id: prev[prev.length - 1].id + 1,
+      id: 1,
+      sender: "you",
       message: prompt
     }]);
 
@@ -52,11 +54,13 @@ const Chat = () => {
   const sendQuestion = async (message: string) => {
     const loadingValue = messages;
     loadingValue.push({
-      id: messages[messages.length - 1].id + 1,
+      id: 1,
+      sender: "you",
       message: message
     });
     loadingValue.push({
-      id: messages[messages.length - 1].id + 1,
+      id: 1,
+      sender: "bot",
       message: 'loading...'
     });
     setMessages(loadingValue);
@@ -78,10 +82,11 @@ const Chat = () => {
     });
 
     if (response.data.choices[0].text) {
-      const newValue = messages.map((value) => {
-        if (value.id === messages.length - 1) {
+      const newValue = messages.map((value, index) => {
+        if (index === messages.length - 1) {
           return {
-            id: value.id,
+            id: 1,
+            sender: "bot",
             message: response.data.choices[0].text ? response.data.choices[0].text : ""
           };
         }
@@ -90,6 +95,10 @@ const Chat = () => {
       setMessages(newValue);
     }
     setLoading(false);
+  }
+
+  const deleteMessage = (id: number) => {
+    setMessages(prev => prev.filter(message => message.id != id));
   }
 
   const handleMic = () => {
@@ -114,8 +123,8 @@ const Chat = () => {
   return (
     <>
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        {messages.map((message) => (
-          <Message key={message.id} id={message.id} message={message.message} loading={loading} />
+        {messages.map((message, index) => (
+          <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} />
         ))}
       </div>
 

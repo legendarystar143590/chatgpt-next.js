@@ -4,24 +4,38 @@ import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./loading";
 import { useState } from "react";
 
-type Props = {
-  id: number;
-  message: string;
-  loading: boolean
-};
+type Message = {
+  id: number,
+  sender: string,
+  message: string
+}
 
-const Message = ({ id, message, loading }: Props) => {
+type Props = {
+  message: Message,
+  loading: boolean, 
+  deleteMessage: (id: number) => void
+}
+
+const Message = ({ message, loading, deleteMessage }: Props) => {
   const [isControlOpen, setIsControlOpen] = useState(false);
-  // const isChatGPT = message.user.name === "ChatGPT";
-  console.log(isControlOpen);
+  
+  const handleControl = (action: string) => {
+    if(action === 'copy') {
+      setIsControlOpen(false);
+    }
+    else if(action === 'delete') {
+      deleteMessage(message.id);
+    }
+    navigator.clipboard.writeText(message.message);
+  }
 
   return (
     <div className="flex flex-col pt-10">
-      <div className={`flex flex-col gap-4 ${id % 2 === 0 ? "" : "items-end"}`}>
+      <div className={`flex flex-col gap-4 ${message.sender === "bot" ? "" : "items-end"}`}>
         <div className="lg:max-w-[70%] max-w-[90%] text-slate-400 flex flex-col w-fit relative">
           <div>
             {
-              id % 2 === 0 ? (
+              message.sender === 'bot' ? (
                 <>
                   <div className="w-14 h-14 absolute -top-11 left-1 rounded-full bg-slate-900"></div>
                   <img src="/avatar.jpg" className="w-12 h-12 rounded-full absolute -top-10 left-2" alt="avatar" />
@@ -31,18 +45,22 @@ const Message = ({ id, message, loading }: Props) => {
                     onMouseLeave={() => setIsControlOpen(false)}
                   >
                     {
-                      message === 'loading...' && loading ? (
+                      message.message === 'loading...' && loading ? (
                         <BouncingDotsLoader />
                       ) : (
-                        <AnimationMessage text={message} />
+                        <AnimationMessage text={message.message} />
                       )
                     }
                   </div>
                 </>
               ) : (
                 <div>
-                  <div className="px-4 py-2 rounded-md text-white bg-slate-400/10">
-                    <p className="text-lg">{message}</p>
+                  <div
+                    className="px-4 py-2 rounded-md text-white bg-slate-400/10"
+                    onMouseEnter={() => setIsControlOpen(true)}
+                    onMouseLeave={() => setIsControlOpen(false)}
+                  >
+                    <p className="text-lg">{message.message}</p>
                   </div>
                   <div className="w-14 h-14 absolute -top-11 right-1 rounded-full bg-slate-900"></div>
                   <img src="/avatar1.jpg" className="w-12 h-12 rounded-full absolute -top-10 right-2" alt="avatar" />
@@ -52,18 +70,18 @@ const Message = ({ id, message, loading }: Props) => {
             {
               isControlOpen && (
                 <div
-                  className={`absolute top-0 ${id % 2 ? "-left-24 pr-4" : "-right-24 pl-4"}`}
+                  className={`text-lg absolute top-0 ${message.sender === "bot" ? "-right-24 pl-4" : "-left-24 pr-4"}`}
                   onMouseEnter={() => setIsControlOpen(true)}
                   onMouseLeave={() => setIsControlOpen(false)}
                 >
-                  <div className={`py-1 px-2 h-fit rounded-md flex flex-col gap-1 ${id % 2 ? "bg-slate-400/10 text-white" : "bg-sky-400/10 text-sky-400"}`}>
-                    <button className="flex items-center gap-2 hover:text-sky-700">
+                  <div className={`p-2 h-fit rounded-md flex flex-col gap-2 ${message.sender === "bot" ? "bg-sky-400/10 text-sky-400" : "bg-slate-400/10 text-white"}`}>
+                    <button className="flex items-center gap-2 hover:text-sky-700" onClick={() => handleControl('copy')}>
                       <DocumentDuplicateIcon width="16px" height="16px" />
-                      <p>copy</p>
+                      <p>Copy</p>
                     </button>
-                    <button className="flex items-center gap-2 hover:text-sky-700">
+                    <button className="flex items-center gap-2 hover:text-sky-700" onClick={() => handleControl('delete')}>
                       <TrashIcon width="16px" height="16px" />
-                      <p>delete</p>
+                      <p>Delete</p>
                     </button>
                   </div>
                 </div>
