@@ -110,6 +110,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (results.length !== 0)
+      // @ts-ignore
       setPrompt(prompt + "" + results[results.length - 1].transcript);
   }, [results.length]);
 
