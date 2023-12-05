@@ -68,7 +68,7 @@ const Message = ({ message, loading, deleteMessage }: Props) => {
               )
             }
             {
-              isControlOpen && (
+              message.id!== 0 && isControlOpen && (
                 <div
                   className={`text-lg absolute top-0 ${message.sender === "bot" ? "-right-24 pl-4" : "-left-24 pr-4"}`}
                   onMouseEnter={() => setIsControlOpen(true)}

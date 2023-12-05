@@ -42,7 +42,7 @@ const Chat = () => {
 
   const sendMessage = () => {
     setMessages(prev => [...prev, {
-      id: 1,
+      id: prev[prev.length - 1].id + 1,
       sender: "you",
       message: prompt
     }]);
@@ -54,12 +54,12 @@ const Chat = () => {
   const sendQuestion = async (message: string) => {
     const loadingValue = messages;
     loadingValue.push({
-      id: 1,
+      id: loadingValue[loadingValue.length - 1].id + 1,
       sender: "you",
       message: message
     });
     loadingValue.push({
-      id: 1,
+      id: loadingValue[loadingValue.length - 1].id + 1,
       sender: "bot",
       message: 'loading...'
     });
@@ -85,7 +85,7 @@ const Chat = () => {
       const newValue = messages.map((value, index) => {
         if (index === messages.length - 1) {
           return {
-            id: 1,
+            id: value.id,
             sender: "bot",
             message: response.data.choices[0].text ? response.data.choices[0].text : ""
           };
