@@ -8,6 +8,7 @@ module.exports = {
     appDir: true,
   },
   typescript: {
-    ignoreBuildErrors: true
-  }
-};
+    ignoreBuildErrors: true,
+  },
+}
+
