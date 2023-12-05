@@ -7,7 +7,7 @@ import Message from "./Message";
 import { useEffect, useState } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 const Chat = () => {
   const [messages, setMessages] = useState([{
@@ -32,12 +32,12 @@ const Chat = () => {
 
   const openai = new OpenAIApi(configuration);
 
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition
-  } = useSpeechRecognition();
+  // const {
+  //   transcript,
+  //   listening,
+  //   resetTranscript,
+  //   browserSupportsSpeechRecognition
+  // } = useSpeechRecognition();
 
   const sendMessage = () => {
     setMessages(prev => [...prev, {
@@ -93,23 +93,23 @@ const Chat = () => {
   }
 
   const handleMic = () => {
-    if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-      return <div>Speech recognition is not supported by your browser</div>;
-    }
-    if (isRecording) {
-      SpeechRecognition.stopListening();
-      setIsRecording(false);
-    } else {
-      SpeechRecognition.startListening({ continuous: true });
-      setIsRecording(true);
-    }
+    // if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    //   return <div>Speech recognition is not supported by your browser</div>;
+    // }
+    // if (isRecording) {
+    //   SpeechRecognition.stopListening();
+    //   setIsRecording(false);
+    // } else {
+    //   SpeechRecognition.startListening({ continuous: true });
+    //   setIsRecording(true);
+    // }
   }
 
-  useEffect(() => {
-    if (transcript !== null)
-      // @ts-ignore
-      setPrompt(prompt + "" + transcript);
-  }, [transcript]);
+  // useEffect(() => {
+  //   if (transcript !== null)
+  //     // @ts-ignore
+  //     setPrompt(prompt + "" + transcript);
+  // }, [transcript]);
 
   return (
     <>
