@@ -15,7 +15,7 @@ export function AnimationMessage({ text }: Props) {
       if (index > text.length) {
         clearInterval(intervalId);
       }
-    }, 10); // Adjust the interval to control the typing speed
+    }, 5); // Adjust the interval to control the typing speed
     return () => clearInterval(intervalId);
   }, [text]);
 
