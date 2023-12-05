@@ -122,7 +122,7 @@ const Chat = () => {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0 sm:pt-6">
         {messages.map((message, index) => (
           <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} />
         ))}
