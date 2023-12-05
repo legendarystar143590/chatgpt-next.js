@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 // import { collection, orderBy, query } from "firebase/firestore";
 // import { useSession } from "next-auth/react";
 // import { useCollection } from "react-firebase-hooks/firestore";
@@ -8,7 +7,7 @@ import Message from "./Message";
 import { useEffect, useState } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
-import useSpeechToText from "react-hook-speech-to-text";
+// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 const Chat = () => {
   const [messages, setMessages] = useState([{
@@ -18,10 +17,11 @@ const Chat = () => {
   const [prePrompt, setPrePrompt] = useState([
     "Give me a summary of ChatGPT. Give me a summary of ChatGPT.",
     "Write poem about ChatGPT",
-    "more"
+    "Give me the financial status of hospitals"
   ]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   // const { data: session } = useSession();
 
   const API_KEY = process.env.OPENAI_API_KEY;
@@ -32,17 +32,12 @@ const Chat = () => {
 
   const openai = new OpenAIApi(configuration);
 
-  const {
-    error,
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
-    continuous: true,
-    useLegacyResults: false
-  });
+  // const {
+  //   transcript,
+  //   listening,
+  //   resetTranscript,
+  //   browserSupportsSpeechRecognition
+  // } = useSpeechRecognition();
 
   const sendMessage = () => {
     setMessages(prev => [...prev, {
@@ -98,21 +93,23 @@ const Chat = () => {
   }
 
   const handleMic = () => {
-    if (error) {
-      return <p>Web Speech API is not available in this browser.</p>;
-    }
-    if (isRecording) {
-      stopSpeechToText();
-    } else {
-      startSpeechToText();
-    }
+    // if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    //   return <div>Speech recognition is not supported by your browser</div>;
+    // }
+    // if (isRecording) {
+    //   SpeechRecognition.stopListening();
+    //   setIsRecording(false);
+    // } else {
+    //   SpeechRecognition.startListening({ continuous: true });
+    //   setIsRecording(true);
+    // }
   }
 
-  useEffect(() => {
-    if (results.length !== 0)
-      // @ts-ignore
-      setPrompt(prompt + "" + results[results.length - 1].transcript);
-  }, [results.length]);
+  // useEffect(() => {
+  //   if (transcript !== null)
+  //     // @ts-ignore
+  //     setPrompt(prompt + "" + transcript);
+  // }, [transcript]);
 
   return (
     <>
