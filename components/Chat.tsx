@@ -13,10 +13,10 @@ import useSpeechToText from "react-hook-speech-to-text";
 const Chat = () => {
   const [messages, setMessages] = useState([{
     id: 0,
-    message: "I am a chat gpt. I can't understand human's emtion. I am a chat gpt. I can't understand human"
+    message: "I am a chat gpt."
   }]);
   const [prePrompt, setPrePrompt] = useState([
-    "Give me a summary of ChatGPT",
+    "Give me a summary of ChatGPT. Give me a summary of ChatGPT.",
     "Write poem about ChatGPT",
     "more"
   ]);
@@ -123,15 +123,15 @@ const Chat = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2 px-4 items-center">
+        <ul className="px-4 items-center">
           {
             prePrompt.map((one, index) => (
-              <button key={index} className="bg-slate-400/10 text-white rounded-lg p-2 w-fit" onClick={() => sendQuestion(one)}>
+              <li key={index} className="text-sky-400 cursor-pointer border-b border-b-sky-400/10 hover:text-sky-700" onClick={() => sendQuestion(one)}>
                 {one}
-              </button>
+              </li>
             ))
           }
-        </div>
+        </ul>
         <div className="bg-slate-400/10 text-gray-400 rounded-lg text-md">
           <div className="px-4 py-2 space-x-5 flex">
             <input
