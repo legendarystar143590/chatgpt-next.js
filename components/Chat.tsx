@@ -17,7 +17,7 @@ const Chat = () => {
   const [prePrompt, setPrePrompt] = useState([
     "Give me a summary of ChatGPT",
     "Write poem about ChatGPT",
-    "more"
+    "Give me the financial status of hospitals"
   ]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
