@@ -32,7 +32,7 @@ const Message = ({ message, loading, deleteMessage }: Props) => {
   return (
     <div className="flex flex-col mt-10 sm:mt-4">
       <div className={`flex flex-col gap-4 ${message.sender === "bot" ? "" : "items-end"}`}>
-        <div className="lg:max-w-[70%] max-w-[90%] text-slate-400 flex flex-col w-fit relative">
+        <div className="md:max-w-[70%] max-w-[90%] text-slate-400 flex flex-col w-fit relative">
           <div>
             {
               message.sender === 'bot' ? (
@@ -70,7 +70,8 @@ const Message = ({ message, loading, deleteMessage }: Props) => {
             {
               message.id!== 0 && isControlOpen && (
                 <div
-                  className={`text-lg absolute top-0 ${message.sender === "bot" ? "-right-24 pl-4" : "-left-24 pr-4"}`}
+                  className={`text-lg absolute w-[107px] md:top-0 md:mt-0 
+                              ${message.sender === "bot" ? "md:-right-24 md:pl-4 mt-1" : "md:-left-24 md:pr-4 right-0 mt-1"}`}
                   onMouseEnter={() => setIsControlOpen(true)}
                   onMouseLeave={() => setIsControlOpen(false)}
                 >
@@ -88,7 +89,7 @@ const Message = ({ message, loading, deleteMessage }: Props) => {
               )
             }
           </div>
-          <div className="px-4">{'Today, 12:30'}</div>
+          <div className={`px-4 ${isControlOpen ? "text-slate-900" : ""}`}>Today, 12:30</div>
         </div>
       </div>
     </div>
