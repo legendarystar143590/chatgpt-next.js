@@ -27,7 +27,7 @@ export default async function RootLayout({
 
               <ClientProvider />
 
-              <div className="lg:w-[50%] h-full lg:p-6 p-3 w-full bg-slate-900 rounded-2xl">{children}</div>
+              <div className="md:w-[70%] lg:w-[50%] h-full lg:p-6 p-3 w-full bg-slate-900 rounded-2xl">{children}</div>
             </div>
           {/* )}
         </SessionProvider> */}
