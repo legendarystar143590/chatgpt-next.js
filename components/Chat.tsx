@@ -1,13 +1,10 @@
 'use client';
-// import { collection, orderBy, query } from "firebase/firestore";
-// import { useSession } from "next-auth/react";
-// import { useCollection } from "react-firebase-hooks/firestore";
-// import { db } from "../firebase/firebase";
 import Message from "./Message";
 import { useEffect, useState } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
 // import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import axios from "axios";
 
 const Chat = () => {
   const [messages, setMessages] = useState([{
@@ -16,17 +13,17 @@ const Chat = () => {
     message: "I am a chat gpt."
   }]);
   const [prePrompt, setPrePrompt] = useState([
-    "Give me a summary of ChatGPT. Give me a summary of ChatGPT.",
-    "Write poem about ChatGPT",
-    "Give me the financial status of hospitals"
+    "Give me a hospital that is expenisve most.",
+    "How many hospitals are there?",
+    "Give me the financial status of hospitals."
   ]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   // const { data: session } = useSession();
 
-  const API_KEY = process.env.OPENAI_API_KEY;
-  const configuration = new Configuration({
+  const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    const configuration = new Configuration({
     apiKey: API_KEY,
   });
   delete configuration.baseOptions.headers['User-Agent'];
@@ -40,11 +37,26 @@ const Chat = () => {
   //   browserSupportsSpeechRecognition
   // } = useSpeechRecognition();
 
+  const SERVER_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+  // console.log(SERVER_ENDPOINT);
+  const handleMessage = () =>{
+    console.log(prompt, " is sent to backend!");
+    axios.post(`${SERVER_ENDPOINT}/user_query`, {
+      query: prompt,
+    })
+    .then(res => {
+      console.log(res);
+    })
+    .catch(err => {
+      console.log(err);
+    })
+  }
+
   const sendMessage = () => {
     setMessages(prev => [...prev, {
-      id: prev[prev.length - 1].id + 1,
-      sender: "you",
-      message: prompt
+    id: prev[prev.length - 1].id + 1,
+    sender: "you",
+    message: prompt
     }]);
 
     sendQuestion(prompt);
@@ -63,9 +75,34 @@ const Chat = () => {
       sender: "bot",
       message: 'loading...'
     });
+    console.log("Loading value is >>>>>",loadingValue);
     setMessages(loadingValue);
     setPrompt("");
+    // console.log("Got message from user.");
+    // axios.post(`${SERVER_ENDPOINT}/user_query`, {
+    //   query: message,
+    // })
+    // .then(res => {
+    //   console.log(res);
+    //   const newValue = messages.map((value, index) => {
+    //       if (index === messages.length - 1) {
+    //         return {
+    //           id: value.id,
+    //           sender: "bot",
+    //           message: "Ok"
+    //         };
+    //       }
+    //       return value;
+    //   });
+    //   setMessages(newValue);
+    //   setLoading(false);
+    // })
+    // .catch(err => {
+    //   console.log(err);
+    // })
     setLoading(true);
+    console.log(API_KEY);
+
 
     const response = await openai.createCompletion({
       model: "text-davinci-003",
@@ -94,12 +131,17 @@ const Chat = () => {
       });
       setMessages(newValue);
     }
+
+
+
     setLoading(false);
   }
 
   const deleteMessage = (id: number) => {
     setMessages(prev => prev.filter(message => message.id != id));
   }
+
+  
 
   const handleMic = () => {
     // if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
@@ -147,7 +189,7 @@ const Chat = () => {
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  sendMessage();
+                  handleMessage();
                 }
               }}
               type="text"
