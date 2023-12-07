@@ -25,7 +25,7 @@ const Chat = () => {
   const [isRecording, setIsRecording] = useState(false);
   // const { data: session } = useSession();
 
-  const API_KEY = process.env.OPENAI_API_KEY;
+  const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   const configuration = new Configuration({
     apiKey: API_KEY,
   });
@@ -74,6 +74,7 @@ const Chat = () => {
     }).then(response => {
       if (response.data.choices[0].text) {
         const newValue = messages.map((value, index) => {
+          console.log(value);
           if (index === messages.length - 1) {
             return {
               id: value.id,
