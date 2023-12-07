@@ -64,7 +64,6 @@ const Chat = () => {
   }
 
   const sendQuestion = async (message: string) => {
-    const loadingValue = messages;
     setMessages(prev => [...prev, {
       id: prev[prev.length - 1].id + 1,
       sender: "you",
