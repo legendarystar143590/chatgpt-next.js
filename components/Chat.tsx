@@ -41,33 +41,26 @@ const Chat = () => {
   // } = useSpeechRecognition();
 
   const sendMessage = () => {
-    setMessages(prev => [...prev, {
-      id: prev[prev.length - 1].id + 1,
-      sender: "you",
-      message: prompt
-    }]);
-
     sendQuestion(prompt);
     setPrompt("");
   }
 
   const sendQuestion = async (message: string) => {
     const loadingValue = messages;
-    loadingValue.push({
-      id: loadingValue[loadingValue.length - 1].id + 1,
+    setMessages(prev => [...prev, {
+      id: prev[prev.length - 1].id + 1,
       sender: "you",
       message: message
-    });
-    loadingValue.push({
-      id: loadingValue[loadingValue.length - 1].id + 1,
+    }])
+    setMessages(prev => [...prev, {
+      id: prev[prev.length - 1].id + 1,
       sender: "bot",
       message: 'loading...'
-    });
-    setMessages(loadingValue);
+    }])
     setPrompt("");
     setLoading(true);
 
-    const response = await openai.createCompletion({
+    await openai.createCompletion({
       model: "text-davinci-003",
       prompt: `${message}`,
       temperature: 0, // Higher values means the model will take more risks.
@@ -79,22 +72,26 @@ const Chat = () => {
       headers: {
         'Authorization': 'Bearer ' + String(API_KEY)
       }
+    }).then(response => {
+      if (response.data.choices[0].text) {
+        const newValue = messages.map((value, index) => {
+          if (index === messages.length - 1) {
+            return {
+              id: value.id,
+              sender: "bot",
+              message: response.data.choices[0].text ? response.data.choices[0].text : ""
+            };
+          }
+          return value;
+        });
+        setMessages(newValue);
+      }
+      setLoading(false);
+    }).catch(err => {
+      console.log(err);
+      setLoading(false);
+      setMessages(prev => prev.filter(one => one.message !== 'loading...'));
     });
-
-    if (response.data.choices[0].text) {
-      const newValue = messages.map((value, index) => {
-        if (index === messages.length - 1) {
-          return {
-            id: value.id,
-            sender: "bot",
-            message: response.data.choices[0].text ? response.data.choices[0].text : ""
-          };
-        }
-        return value;
-      });
-      setMessages(newValue);
-    }
-    setLoading(false);
   }
 
   const deleteMessage = (id: number) => {
@@ -142,7 +139,7 @@ const Chat = () => {
           <div className="px-4 py-2 space-x-5 flex">
             <input
               className="bg-transparent focus:outline-none flex-1 disabled:cursor-not-allowed disabled:text-gray-300 text-white"
-              disabled={false}
+              disabled={loading}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
@@ -169,7 +166,7 @@ const Chat = () => {
               }
             </button>
             <button
-              disabled={false || !prompt}
+              disabled={!prompt || loading}
               className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed flex justify-center hidden sm:block"
               onClick={sendMessage}
             >
