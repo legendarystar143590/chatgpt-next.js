@@ -59,7 +59,7 @@ const Chat = () => {
     setPrompt("");
     setLoading(true);
 
-    openai.createCompletion({
+    await openai.createCompletion({
       model: "text-davinci-003",
       prompt: `${message}`,
       temperature: 0, // Higher values means the model will take more risks.
