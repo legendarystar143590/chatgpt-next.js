@@ -74,7 +74,7 @@ const Chat = () => {
       id: prev[prev.length - 1].id + 1,
       sender: "bot",
       message: 'loading...'
-    });
+    }]);
     setMessages(loadingValue);
     setPrompt("");
     // console.log("Got message from user.");
@@ -103,7 +103,7 @@ const Chat = () => {
     console.log(API_KEY);
 
 
-    await openai.createCompletion({
+    const response = await openai.createCompletion({
       model: "text-davinci-003",
       prompt: `${message}`,
       temperature: 0, // Higher values means the model will take more risks.
