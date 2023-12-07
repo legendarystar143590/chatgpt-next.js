@@ -59,7 +59,7 @@ const Chat = () => {
     setPrompt("");
     setLoading(true);
 
-    await openai.createCompletion({
+    openai.createCompletion({
       model: "text-davinci-003",
       prompt: `${message}`,
       temperature: 0, // Higher values means the model will take more risks.
@@ -73,22 +73,12 @@ const Chat = () => {
       }
     }).then(response => {
       if (response.data.choices[0].text) {
-        // const newValue = messages.map((value, index) => {
-        //   if (index === messages.length - 1) {
-        //     return {
-        //       id: value.id,
-        //       sender: "bot",
-        //       message: response.data.choices[0].text ? response.data.choices[0].text : ""
-        //     };
-        //   }
-        //   // return value;
-        // });
+        console.log(messages);
         const newValue = {
-                id: messages[messages.length-1].id,
-                sender: "bot",
-                message: response.data.choices[0].text ? response.data.choices[0].text : ""
+          id: messages.length+1,
+          sender: "bot",
+          message: response.data.choices[0].text ? response.data.choices[0].text : ""
         };
-        
         setMessages(preArray => [...preArray.slice(0, -1), newValue]);
       }
       setLoading(false);

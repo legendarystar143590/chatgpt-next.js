@@ -18,7 +18,7 @@ type Props = {
 
 const Message = ({ message, loading, deleteMessage }: Props) => {
   const [isControlOpen, setIsControlOpen] = useState(false);
-  
+  console.log(message.id);
   const handleControl = (action: string) => {
     if(action === 'copy') {
       setIsControlOpen(false);
