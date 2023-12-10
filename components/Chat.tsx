@@ -75,7 +75,7 @@ const Chat = () => {
       if (response.data.choices[0].text) {
         console.log(messages);
         const newValue = {
-          id: messages.length+1,
+          id: messages[messages.length - 1].id,
           sender: "bot",
           message: response.data.choices[0].text ? response.data.choices[0].text : ""
         };
