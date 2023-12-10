@@ -84,11 +84,10 @@ const Chat = () => {
         //   // return value;
         // });
         const newValue = {
-                id: messages[messages.length-1].id,
-                sender: "bot",
-                message: response.data.choices[0].text ? response.data.choices[0].text : ""
+          id: messages[messages.length - 1].id,
+          sender: "bot",
+          message: response.data.choices[0].text ? response.data.choices[0].text : ""
         };
-        
         setMessages(preArray => [...preArray.slice(0, -1), newValue]);
       }
       setLoading(false);
