@@ -73,16 +73,7 @@ const Chat = () => {
       }
     }).then(response => {
       if (response.data.choices[0].text) {
-        // const newValue = messages.map((value, index) => {
-        //   if (index === messages.length - 1) {
-        //     return {
-        //       id: value.id,
-        //       sender: "bot",
-        //       message: response.data.choices[0].text ? response.data.choices[0].text : ""
-        //     };
-        //   }
-        //   // return value;
-        // });
+        console.log(messages);
         const newValue = {
           id: messages[messages.length - 1].id,
           sender: "bot",
