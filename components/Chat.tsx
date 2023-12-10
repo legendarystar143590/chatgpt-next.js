@@ -1,9 +1,7 @@
 'use client';
-// import { collection, orderBy, query } from "firebase/firestore";
-// import { useSession } from "next-auth/react";
-// import { useCollection } from "react-firebase-hooks/firestore";
-// import { db } from "../firebase/firebase";
+
 import Message from "./Message";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
@@ -16,15 +14,17 @@ const Chat = () => {
     message: "I am a chat gpt."
   }]);
   const [prePrompt, setPrePrompt] = useState([
-    "Give me a summary of ChatGPT. Give me a summary of ChatGPT.",
-    "Write poem about ChatGPT",
-    "Give me the financial status of hospitals"
+    "Cheapest Brain Scan in Tampa Bay",
+    "Good Deal on Neck MRI in Orlando",
+    "Best Price for Mammo in Miami"
   ]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   // const { data: session } = useSession();
 
+  //Loading environmental variables
+  const SERVER_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
   const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   const configuration = new Configuration({
     apiKey: API_KEY,
@@ -59,34 +59,56 @@ const Chat = () => {
     setPrompt("");
     setLoading(true);
 
-    await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: `${message}`,
-      temperature: 0, // Higher values means the model will take more risks.
-      max_tokens: 3000, // The maximum number of tokens to generate in the completion. Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
-      top_p: 1, // alternative to sampling with temperature, called nucleus sampling
-      frequency_penalty: 0.5, // Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-      presence_penalty: 0, // Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    }, {
-      headers: {
-        'Authorization': 'Bearer ' + String(API_KEY)
-      }
-    }).then(response => {
-      if (response.data.choices[0].text) {
-        console.log(messages);
+    await axios.post(`${SERVER_ENDPOINT}/user_query`, {
+      query: message,
+    })
+    .then(res => {
+      console.log(res.data.response);
+      if (res) {
         const newValue = {
           id: messages.length+1,
           sender: "bot",
-          message: response.data.choices[0].text ? response.data.choices[0].text : ""
+          message: res.data?.response 
         };
         setMessages(preArray => [...preArray.slice(0, -1), newValue]);
       }
       setLoading(false);
-    }).catch(err => {
+    })
+    .catch(err => {
+      console.log(err);
       console.log(err);
       setLoading(false);
       setMessages(prev => prev.filter(one => one.message !== 'loading...'));
-    });
+
+    })
+    // await openai.createCompletion({
+    //   model: "text-davinci-003",
+    //   prompt: `${message}`,
+    //   temperature: 0, // Higher values means the model will take more risks.
+    //   max_tokens: 3000, // The maximum number of tokens to generate in the completion. Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
+    //   top_p: 1, // alternative to sampling with temperature, called nucleus sampling
+    //   frequency_penalty: 0.5, // Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+    //   presence_penalty: 0, // Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+    // }, {
+    //   headers: {
+    //     'Authorization': 'Bearer ' + String(API_KEY)
+    //   }
+    // }).then(response => {
+    //   if (response.data.choices[0].text) {
+    //     console.log(messages);
+    //     const newValue = {
+    //       id: messages.length+1,
+    //       sender: "bot",
+    //       message: response.data.choices[0].text ? response.data.choices[0].text : ""
+    //     };
+    //     setMessages(preArray => [...preArray.slice(0, -1), newValue]);
+    //   }
+    //   setLoading(false);
+    // }).catch(err => {
+    //   console.log(err);
+    //   setLoading(false);
+    //   setMessages(prev => prev.filter(one => one.message !== 'loading...'));
+    // });
   }
 
   const deleteMessage = (id: number) => {
