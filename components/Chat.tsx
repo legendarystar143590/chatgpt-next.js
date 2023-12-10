@@ -7,17 +7,18 @@ import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
 // import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
+type PrePrompt = {
+  title: string,
+  prompt: string
+}
+
 const Chat = () => {
   const [messages, setMessages] = useState([{
     id: 0,
     sender: "bot",
     message: "I am a chat gpt."
   }]);
-  const [prePrompt, setPrePrompt] = useState([
-    "Cheapest Brain Scan in Tampa Bay",
-    "Good Deal on Neck MRI in Orlando",
-    "Best Price for Mammo in Miami"
-  ]);
+  const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -41,15 +42,10 @@ const Chat = () => {
   // } = useSpeechRecognition();
 
   const sendMessage = () => {
-    sendQuestion(prompt);
-    setPrompt("");
-  }
-
-  const sendQuestion = async (message: string) => {
     setMessages(prev => [...prev, {
       id: prev[prev.length - 1].id + 1,
       sender: "you",
-      message: message
+      message: prompt
     }])
     setMessages(prev => [...prev, {
       id: prev[prev.length - 1].id + 1,
@@ -57,30 +53,44 @@ const Chat = () => {
       message: 'loading...'
     }])
     setPrompt("");
+    sendQuestion(prompt);
+  }
+
+  const sendPrePrompt = (prePrompt: PrePrompt) => {
+    setMessages(prev => [...prev, {
+      id: prev[prev.length - 1].id + 1,
+      sender: "you",
+      message: prePrompt.title
+    }])
+    setMessages(prev => [...prev, {
+      id: prev[prev.length - 1].id + 1,
+      sender: "bot",
+      message: 'loading...'
+    }])
+    sendQuestion(prePrompt.prompt)
+  }
+
+  const sendQuestion = async (message: string) => {
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
       query: message,
     })
-    .then(res => {
-      console.log(res.data.response);
-      if (res) {
-        const newValue = {
-          id: messages[messages.length - 1].id,
-          sender: "bot",
-          message: res.data?.response 
-        };
-        setMessages(preArray => [...preArray.slice(0, -1), newValue]);
-      }
-      setLoading(false);
-    })
-    .catch(err => {
-      console.log(err);
-      console.log(err);
-      setLoading(false);
-      setMessages(prev => prev.filter(one => one.message !== 'loading...'));
-
-    })
+      .then(res => {
+        if (res) {
+          const newValue = {
+            id: messages[messages.length - 1].id,
+            sender: "bot",
+            message: res.data?.response
+          };
+          setMessages(preArray => [...preArray.slice(0, -1), newValue]);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        setMessages(prev => prev.filter(one => one.message !== 'loading...'));
+      })
     // await openai.createCompletion({
     //   model: "text-davinci-003",
     //   prompt: `${message}`,
@@ -134,6 +144,22 @@ const Chat = () => {
   //     setPrompt(prompt + "" + transcript);
   // }, [transcript]);
 
+  useEffect(() => {
+    axios.get(`${SERVER_ENDPOINT}/get_initial_prompts`, {
+      headers: {
+        'ngrok-skip-browser-warning': "1",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+      .then(res => {
+        if (res.status === 200 && res.data) {
+          setPrePrompt(res.data);
+        }
+      })
+      .catch(err => console.log(err));
+  }, [])
+
   return (
     <>
       <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0 sm:pt-6">
@@ -143,15 +169,19 @@ const Chat = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <ul className="px-4 items-center">
-          {
-            prePrompt.map((one, index) => (
-              <li key={index} className="text-sky-400 cursor-pointer border-b border-b-sky-400/10 hover:text-sky-700" onClick={() => sendQuestion(one)}>
-                {one}
-              </li>
-            ))
-          }
-        </ul>
+        {
+          !loading && (
+            <ul className="px-4 items-center">
+              {
+                prePrompt && prePrompt.map((one, index) => (
+                  <li key={index} className="text-sky-400 cursor-pointer border-b border-b-sky-400/10 hover:text-sky-700" onClick={() => sendPrePrompt(one)}>
+                    {one.title}
+                  </li>
+                ))
+              }
+            </ul>
+          )
+        }
         <div className="bg-slate-400/10 text-gray-400 rounded-lg text-md">
           <div className="px-4 py-2 space-x-5 flex">
             <input
