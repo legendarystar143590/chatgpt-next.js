@@ -2,7 +2,7 @@
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
 import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./loading";
-import { useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 
 type Message = {
   id: number,
@@ -12,21 +12,28 @@ type Message = {
 
 type Props = {
   message: Message,
-  loading: boolean, 
-  deleteMessage: (id: number) => void
+  loading: boolean,
+  deleteMessage: (id: number) => void,
+  scrollRef: MutableRefObject<null>,
+  type: string
 }
 
-const Message = ({ message, loading, deleteMessage }: Props) => {
+const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) => {
   const [isControlOpen, setIsControlOpen] = useState(false);
   const handleControl = (action: string) => {
-    if(action === 'copy') {
+    if (action === 'copy') {
       setIsControlOpen(false);
     }
-    else if(action === 'delete') {
+    else if (action === 'delete') {
       deleteMessage(message.id);
     }
     navigator.clipboard.writeText(message.message);
   }
+
+  useEffect(() => {
+    // @ts-ignore
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+  })
 
   return (
     <div className="flex flex-col mt-10 sm:mt-4">
@@ -44,10 +51,14 @@ const Message = ({ message, loading, deleteMessage }: Props) => {
                     onMouseLeave={() => setIsControlOpen(false)}
                   >
                     {
-                      message.message === 'loading...' && loading ? (
-                        <BouncingDotsLoader />
+                      type === "history" ? (
+                        <p className="text-lg">{message.message}</p>
                       ) : (
-                        <AnimationMessage text={message.message} />
+                        message.message === 'loading...' && loading ? (
+                          <BouncingDotsLoader />
+                        ) : (
+                          <AnimationMessage text={message.message} scrollRef={scrollRef} />
+                        )
                       )
                     }
                   </div>
@@ -67,7 +78,7 @@ const Message = ({ message, loading, deleteMessage }: Props) => {
               )
             }
             {
-              message.id!== 0 && isControlOpen && (
+              message.id !== 0 && isControlOpen && (
                 <div
                   className={`text-lg absolute w-[107px] md:top-0 md:mt-0 
                               ${message.sender === "bot" ? "md:-right-24 md:pl-4 mt-1" : "md:-left-24 md:pr-4 right-0 mt-1"}`}

@@ -2,7 +2,7 @@
 
 import Message from "./Message";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
 // import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
@@ -12,16 +12,21 @@ type PrePrompt = {
   prompt: string
 }
 
+type History = {
+  id: number,
+  sender: string,
+  message: string
+}
+
 const Chat = () => {
-  const [messages, setMessages] = useState([{
-    id: 0,
-    sender: "bot",
-    message: "I am a chat gpt."
-  }]);
+  const listRef = useRef(null);
+
+  const [messages, setMessages] = useState<History[]>([]);
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [history, setHistory] = useState<History[]>([])
   // const { data: session } = useSession();
 
   //Loading environmental variables
@@ -43,7 +48,7 @@ const Chat = () => {
 
   const sendMessage = () => {
     setMessages(prev => [...prev, {
-      id: prev[prev.length - 1].id + 1,
+      id: prev.length ? prev[prev.length - 1].id + 1 : 1,
       sender: "you",
       message: prompt
     }])
@@ -58,7 +63,7 @@ const Chat = () => {
 
   const sendPrePrompt = (prePrompt: PrePrompt) => {
     setMessages(prev => [...prev, {
-      id: prev[prev.length - 1].id + 1,
+      id: prev.length ? prev[prev.length - 1].id + 1 : 1,
       sender: "you",
       message: prePrompt.title
     }])
@@ -71,6 +76,8 @@ const Chat = () => {
   }
 
   const sendQuestion = async (message: string) => {
+    // @ts-ignore
+    listRef.current?.scrollIntoView({ behavior: 'smooth' });
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
@@ -79,7 +86,7 @@ const Chat = () => {
       .then(res => {
         if (res) {
           const newValue = {
-            id: messages[messages.length - 1].id,
+            id: messages.length ? messages[messages.length - 1].id + 1 : 1,
             sender: "bot",
             message: res.data?.response
           };
@@ -88,9 +95,11 @@ const Chat = () => {
         setLoading(false);
       })
       .catch(err => {
+        console.log(err);
         setLoading(false);
         setMessages(prev => prev.filter(one => one.message !== 'loading...'));
       })
+
     // await openai.createCompletion({
     //   model: "text-davinci-003",
     //   prompt: `${message}`,
@@ -158,14 +167,41 @@ const Chat = () => {
         }
       })
       .catch(err => console.log(err));
+
+    axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
+      "user_id": 0
+    }, {
+      headers: {
+        'ngrok-skip-browser-warning': "1",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+      .then(res => {
+        if (res.status === 201 && res.data) {
+          if (res.data.length === 0) {
+            setMessages([{
+              id: 0,
+              sender: 'bot',
+              message: "I'm a assistant. How can I help you?"
+            }])
+          }
+          else setHistory(res.data)
+        }
+      })
+      .catch(err => console.log(err));
   }, [])
 
   return (
     <>
       <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0 sm:pt-6">
-        {messages.map((message, index) => (
-          <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} />
+        {history.map((message, index) => (
+          <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
         ))}
+        {messages.map((message, index) => (
+          <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="message" />
+        ))}
+        <div ref={listRef}></div>
       </div>
 
       <div className="flex flex-col gap-2">
