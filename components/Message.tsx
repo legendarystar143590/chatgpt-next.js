@@ -2,7 +2,7 @@
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
 import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./loading";
-import { MutableRefObject, useEffect, useState } from "react";
+import { RefObject, useEffect, useState } from "react";
 
 type Message = {
   id: number,
@@ -14,7 +14,7 @@ type Props = {
   message: Message,
   loading: boolean,
   deleteMessage: (id: number) => void,
-  scrollRef: MutableRefObject<null>,
+  scrollRef: RefObject<HTMLDivElement>,
   type: string
 }
 
@@ -31,7 +31,6 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
   }
 
   useEffect(() => {
-    // @ts-ignore
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   })
 

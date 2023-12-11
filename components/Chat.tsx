@@ -26,7 +26,7 @@ type MessageType = {
 }
 
 const Chat = () => {
-  const listRef = useRef(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
@@ -83,7 +83,6 @@ const Chat = () => {
   }
 
   const sendQuestion = async (message: string) => {
-    // @ts-ignore
     listRef.current?.scrollIntoView({ behavior: 'smooth' });
     setLoading(true);
 
