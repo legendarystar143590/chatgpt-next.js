@@ -1,8 +1,8 @@
-import React, { useState, useEffect, MutableRefObject } from 'react';
+import React, { useState, useEffect, RefObject } from 'react';
 
 type Props = {
   text: string,
-  scrollRef: MutableRefObject<null>
+  scrollRef: RefObject<HTMLDivElement>
 };
 
 export function AnimationMessage({ text, scrollRef }: Props) {
@@ -22,7 +22,6 @@ export function AnimationMessage({ text, scrollRef }: Props) {
   }, [text]);
 
   useEffect(() => {
-    // @ts-ignore
     scrollRef.current?.scrollIntoView(false);
   }, [displayedText])
 
