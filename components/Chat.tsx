@@ -14,6 +14,13 @@ type PrePrompt = {
 
 type History = {
   id: number,
+  user_id: number,
+  user_query: string,
+  response: string
+}
+
+type MessageType = {
+  id: number,
   sender: string,
   message: string
 }
@@ -21,7 +28,7 @@ type History = {
 const Chat = () => {
   const listRef = useRef(null);
 
-  const [messages, setMessages] = useState<History[]>([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -81,7 +88,7 @@ const Chat = () => {
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
-      query: message,
+      query: message
     })
       .then(res => {
         if (res) {
@@ -179,14 +186,14 @@ const Chat = () => {
     })
       .then(res => {
         if (res.status === 201 && res.data) {
-          if (res.data.length === 0) {
-            setMessages([{
-              id: 0,
-              sender: 'bot',
-              message: "I'm a assistant. How can I help you?"
-            }])
-          }
-          else setHistory(res.data)
+          setHistory(res.data)
+        }
+        if (res.status === 200 && res.data) {
+          setMessages([{
+            id: 0,
+            sender: 'bot',
+            message: "I'm a assistant. How can I help you?"
+          }])
         }
       })
       .catch(err => console.log(err));
@@ -196,7 +203,10 @@ const Chat = () => {
     <>
       <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0 sm:pt-6">
         {history.map((message, index) => (
-          <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
+          <div key={index}>
+            <Message message={{ id: message.id, sender: 'you', message: message.user_query }} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
+            <Message message={{ id: message.id, sender: 'bot', message: message.response }} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
+          </div>
         ))}
         {messages.map((message, index) => (
           <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="message" />

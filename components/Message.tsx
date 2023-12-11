@@ -99,7 +99,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
               )
             }
           </div>
-          <div className={`px-4 ${isControlOpen ? "text-slate-900" : ""}`}>Today, 12:30</div>
+          {/* <div className={`px-4 ${isControlOpen ? "text-slate-900" : ""}`}>Today, 12:30</div> */}
         </div>
       </div>
     </div>
