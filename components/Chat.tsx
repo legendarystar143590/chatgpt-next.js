@@ -216,7 +216,7 @@ const Chat = () => {
       <div className="flex flex-col gap-2">
         {
           !loading && (
-            <ul className="px-4 items-center">
+            <ul className="px-4 items-center bg-black rounded-md">
               {
                 prePrompt && prePrompt.map((one, index) => (
                   <li key={index} className="text-sky-400 cursor-pointer border-b border-b-sky-400/10 hover:text-sky-700" onClick={() => sendPrePrompt(one)}>
