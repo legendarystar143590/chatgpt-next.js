@@ -2,7 +2,7 @@
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
 import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./loading";
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useEffect } from "react";
 
 type Message = {
   id: number,
@@ -19,6 +19,10 @@ type Props = {
 }
 
 const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) => {
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView(false);
+  })
+
   const handleControl = (action: string) => {
     if (action === 'copy') {
       navigator.clipboard.writeText(message.message);
@@ -42,7 +46,18 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                     {
                       type === "history" ? (
                         <>
-                          <p className="text-lg">{message.message}</p>
+                          <p className="text-lg">
+                            {
+                              message.message.replaceAll(/\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
+                                (one, index) => (
+                                  <span key={index}>
+                                    {one}
+                                    <br />
+                                  </span>
+                                )
+                              )
+                            }
+                          </p>
                           <div className="flex gap-4 mb-2 justify-end">
                             <button className="hover:text-sky-700" onClick={() => handleControl('copy')}>
                               <DocumentDuplicateIcon width="18px" height="18px" />
