@@ -3,22 +3,18 @@ import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
 import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./loading";
 import { RefObject, useEffect } from "react";
-
-type Message = {
-  id: number,
-  sender: string,
-  message: string
-}
+import { MessageType } from "./Chat";
 
 type Props = {
-  message: Message,
+  message: MessageType,
   loading: boolean,
   deleteMessage: (id: number) => void,
   scrollRef: RefObject<HTMLDivElement>,
-  type: string
+  type: string,
+  closer?: string
 }
 
-const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) => {
+const Message = ({ message, loading, deleteMessage, scrollRef, type, closer }: Props) => {
   useEffect(() => {
     scrollRef.current?.scrollIntoView(false);
   })
@@ -73,6 +69,14 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                         ) : (
                           <>
                             <AnimationMessage text={message.message} scrollRef={scrollRef} />
+                            {
+                              message.closer && (
+                                <>
+                                  <br />
+                                  {message.closer}
+                                </>
+                              )
+                            }
                             {
                               message.id !== 0 && (
                                 <div className="flex gap-4 mb-2 justify-end">
