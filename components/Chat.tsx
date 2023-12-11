@@ -19,10 +19,11 @@ type History = {
   response: string
 }
 
-type MessageType = {
+export type MessageType = {
   id: number,
   sender: string,
-  message: string
+  message: string,
+  closer?: string
 }
 
 const Chat = () => {
@@ -89,13 +90,21 @@ const Chat = () => {
       query: message
     })
       .then(res => {
-        if (res) {
+        console.log(res)
+        if (res.status === 201 && res.data) {
           const newValue = {
-            id: messages.length ? messages[messages.length - 1].id + 1 : 1,
+            id: res.data.chat_id,
             sender: "bot",
-            message: res.data?.response
+            message: res.data?.response,
+            closer: res.data?.closer
           };
           setMessages(preArray => [...preArray.slice(0, -1), newValue]);
+          setPrePrompt(res.data?.pre_prompts.map((one: string) => {
+            return {
+              title: one,
+              prompt: one
+            }
+          }))
         }
         setLoading(false);
       })
@@ -136,7 +145,15 @@ const Chat = () => {
   }
 
   const deleteMessage = (id: number) => {
-    setMessages(prev => prev.filter(message => message.id != id));
+    axios.post(`${SERVER_ENDPOINT}/del_message`, {
+      chat_id: id
+    }).then(res => {
+      if (res.status === 201 && res.data) {
+        setMessages(prev => prev.filter(message => message.id != res.data.chat_id));
+        setHistory(prev => prev.filter(message => message.id != res.data.chat_id));
+      }
+    })
+      .catch(err => console.log(err))
   }
 
   const handleMic = () => {
