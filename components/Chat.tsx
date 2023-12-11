@@ -83,7 +83,6 @@ const Chat = () => {
   }
 
   const sendQuestion = async (message: string) => {
-    listRef.current?.scrollIntoView({ behavior: 'smooth' });
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
