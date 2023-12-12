@@ -10,11 +10,10 @@ type Props = {
   loading: boolean,
   deleteMessage: (id: number) => void,
   scrollRef: RefObject<HTMLDivElement>,
-  type: string,
-  closer?: string
+  type: string
 }
 
-const Message = ({ message, loading, deleteMessage, scrollRef, type, closer }: Props) => {
+const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) => {
   useEffect(() => {
     scrollRef.current?.scrollIntoView(false);
   })
@@ -68,15 +67,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type, closer }: P
                           <BouncingDotsLoader />
                         ) : (
                           <>
-                            <AnimationMessage text={message.message} scrollRef={scrollRef} />
-                            {
-                              message.closer && (
-                                <>
-                                  <br />
-                                  {message.closer}
-                                </>
-                              )
-                            }
+                            <AnimationMessage text={message.message} scrollRef={scrollRef} closer={message.closer} />
                             {
                               message.id !== 0 && (
                                 <div className="flex gap-4 mb-2 justify-end">
