@@ -2,11 +2,13 @@ import React, { useState, useEffect, RefObject } from 'react';
 
 type Props = {
   text: string,
+  closer?: string
   scrollRef: RefObject<HTMLDivElement>
 };
 
-export function AnimationMessage({ text, scrollRef }: Props) {
+export function AnimationMessage({ text, scrollRef, closer }: Props) {
   const [displayedText, setDisplayedText] = useState('');
+  const [showCloser, setShowCloser] = useState(false);
 
   useEffect(() => {
     let index = 0;
@@ -16,6 +18,7 @@ export function AnimationMessage({ text, scrollRef }: Props) {
       index++;
       if (index > text.length) {
         clearInterval(intervalId);
+        setShowCloser(true);
       }
     }, 5); // Adjust the interval to control the typing speed
     return () => clearInterval(intervalId);
@@ -35,6 +38,14 @@ export function AnimationMessage({ text, scrollRef }: Props) {
               <br />
             </span>
           )
+        )
+      }
+      {
+        closer && showCloser && (
+          <>
+            <br />
+            <p>{closer}</p>
+          </>
         )
       }
     </span>

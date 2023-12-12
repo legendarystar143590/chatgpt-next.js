@@ -207,7 +207,7 @@ const Chat = () => {
           setMessages([{
             id: 0,
             sender: 'bot',
-            message: "I'm a assistant. How can I help you?"
+            message: "I'm an assistant. How can I help you?"
           }])
         }
       })
