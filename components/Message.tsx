@@ -43,7 +43,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                         <>
                           <p className="text-lg">
                             {
-                              message.message.replaceAll(/\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
+                              message.message.replaceAll(/^\w{2}\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
                                 (one, index) => (
                                   <span key={index}>
                                     {one}
