@@ -1,4 +1,5 @@
 import React, { useState, useEffect, RefObject } from 'react';
+import parse from 'html-react-parser';
 
 type Props = {
   text: string,
@@ -34,7 +35,7 @@ export function AnimationMessage({ text, scrollRef, closer }: Props) {
         displayedText.replaceAll(/^\w{2}\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
           (one, index) => (
             <span key={index}>
-              {one}
+              {parse(one)}
               <br />
             </span>
           )

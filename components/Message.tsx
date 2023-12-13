@@ -1,5 +1,6 @@
 // import { DocumentData } from "firebase/firestore";
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
+import parse from 'html-react-parser';
 import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./loading";
 import { RefObject, useEffect } from "react";
@@ -27,6 +28,15 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
     }
   }
 
+  const convertMarkdownLinksToHTML = (text: string) => {
+    // Regular expression to match the Markdown link format
+    // This regex is more forgiving and can handle some irregularities in the link format
+    const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)?/g;
+
+    // Replace Markdown links with HTML <a> tags
+    return text.replace(markdownLinkRegex, '<a href="$2" className="text-white underline underline-offset-2 hover:text-sky-700">$1</a>');
+  }
+
   return (
     <div className="flex flex-col mt-12 sm:mt-12">
       <div className={`flex flex-col gap-4 ${message.sender === "bot" ? "" : "items-end"}`}>
@@ -46,7 +56,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                               message.message.replaceAll(/^\w{2}\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
                                 (one, index) => (
                                   <span key={index}>
-                                    {one}
+                                    {parse(convertMarkdownLinksToHTML(one))}
                                     <br />
                                   </span>
                                 )
@@ -67,7 +77,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                           <BouncingDotsLoader />
                         ) : (
                           <>
-                            <AnimationMessage text={message.message} scrollRef={scrollRef} closer={message.closer} />
+                            <AnimationMessage text={convertMarkdownLinksToHTML(message.message)} scrollRef={scrollRef} closer={message.closer} />
                             {
                               message.id !== 0 && (
                                 <div className="flex gap-4 mb-2 justify-end">
