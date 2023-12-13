@@ -90,7 +90,6 @@ const Chat = () => {
       query: message
     })
       .then(res => {
-        console.log(res)
         if (res.status === 201 && res.data) {
           const newValue = {
             id: res.data.chat_id,
