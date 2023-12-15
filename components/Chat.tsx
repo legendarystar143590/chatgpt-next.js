@@ -3,9 +3,10 @@
 import Message from "./Message";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { MicrophoneIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import { MicrophoneIcon, PaperAirplaneIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
-// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import 'regenerator-runtime/runtime'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 type PrePrompt = {
   title: string,
@@ -26,6 +27,11 @@ export type MessageType = {
   closer?: string
 }
 
+type AssistantType = {
+  id: number,
+  assistant_name: string
+}
+
 const Chat = () => {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -33,8 +39,9 @@ const Chat = () => {
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [history, setHistory] = useState<History[]>([])
+  const [history, setHistory] = useState<History[]>([]);
+  const [assistants, setAssistants] = useState<AssistantType[]>();
+  const [selectedAssistant, setSelectedAssistant] = useState('-1');
   // const { data: session } = useSession();
 
   //Loading environmental variables
@@ -47,12 +54,12 @@ const Chat = () => {
 
   const openai = new OpenAIApi(configuration);
 
-  // const {
-  //   transcript,
-  //   listening,
-  //   resetTranscript,
-  //   browserSupportsSpeechRecognition
-  // } = useSpeechRecognition();
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
 
   const sendMessage = () => {
     setMessages(prev => [...prev, {
@@ -84,9 +91,12 @@ const Chat = () => {
   }
 
   const sendQuestion = async (message: string) => {
+    resetTranscript();
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
+      user_id: '0',
+      assistant_id: selectedAssistant,
       query: message
     })
       .then(res => {
@@ -156,39 +166,23 @@ const Chat = () => {
   }
 
   const handleMic = () => {
-    // if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-    //   return <div>Speech recognition is not supported by your browser</div>;
-    // }
-    // if (isRecording) {
-    //   SpeechRecognition.stopListening();
-    //   setIsRecording(false);
-    // } else {
-    //   SpeechRecognition.startListening({ continuous: true });
-    //   setIsRecording(true);
-    // }
+    if (!browserSupportsSpeechRecognition) {
+      return <div>Speech recognition is not supported by your browser</div>;
+    }
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      SpeechRecognition.startListening({ continuous: true });
+    }
   }
 
-  // useEffect(() => {
-  //   if (transcript !== null)
-  //     // @ts-ignore
-  //     setPrompt(prompt + "" + transcript);
-  // }, [transcript]);
+  const changeSelectedAssistant = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedAssistant(e.target.value)
+  }
+
+  const handleShare = () => {}
 
   useEffect(() => {
-    axios.get(`${SERVER_ENDPOINT}/get_initial_prompts`, {
-      headers: {
-        'ngrok-skip-browser-warning': "1",
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      }
-    })
-      .then(res => {
-        if (res.status === 200 && res.data) {
-          setPrePrompt(res.data);
-        }
-      })
-      .catch(err => console.log(err));
-
     axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
       "user_id": 0
     }, {
@@ -211,11 +205,62 @@ const Chat = () => {
         }
       })
       .catch(err => console.log(err));
+
+    axios.get(`${SERVER_ENDPOINT}/get_assistant`, {
+      headers: {
+        'ngrok-skip-browser-warning': "1",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+      .then(res => {
+        if (res.status === 200 && res.data) {
+          setAssistants(res.data);
+          setSelectedAssistant(res.data[0].id);
+        }
+      })
+      .catch(err => console.log(err));
   }, [])
+
+  useEffect(() => {
+    axios.get(`${SERVER_ENDPOINT}/get_initial_prompts`, {
+      params: {
+        assistant_id: selectedAssistant
+      },
+      headers: {
+        'ngrok-skip-browser-warning': "1",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+      .then(res => {
+        if (res.status === 200 && res.data) {
+          setPrePrompt(res.data);
+        }
+      })
+      .catch(err => console.log(err));
+  }, [selectedAssistant])
+
+  useEffect(() => {
+    setPrompt(transcript);
+  }, [transcript])
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0 sm:pt-6">
+      <div className="flex justify-end gap-2">
+        <select className="bg-black text-sky-400 rounded-md p-2 text-sm border-none" value={selectedAssistant} onChange={e => changeSelectedAssistant(e)}>
+          {
+            assistants && assistants.map(assistant => (
+              <option key={assistant.id} value={assistant.id}>{assistant.assistant_name}</option>
+            ))
+          }
+        </select>
+        <button className="bg-black text-sky-400 rounded-full p-2 flex items-center gap-1 hover:text-sky-700 sm:rounded-md" onClick={() => handleShare()}>
+          <ShareIcon className="w-4 h-4" />
+          <p className="hidden sm:block text-sm">Share</p>
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0">
         {history.map((message, index) => (
           <div key={index}>
             <Message message={{ id: message.id, sender: 'you', message: message.user_query }} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
@@ -262,7 +307,7 @@ const Chat = () => {
               onClick={handleMic}
             >
               {
-                isRecording ? (
+                listening ? (
                   <span className="relative flex h-5 w-5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-5 w-5 bg-sky-500"></span>
