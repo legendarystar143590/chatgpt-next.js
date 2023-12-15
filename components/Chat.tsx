@@ -7,6 +7,7 @@ import { MicrophoneIcon, PaperAirplaneIcon, ShareIcon } from "@heroicons/react/2
 import { Configuration, OpenAIApi } from "openai";
 import 'regenerator-runtime/runtime'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { toast } from "react-toastify";
 
 type PrePrompt = {
   title: string,
@@ -32,7 +33,11 @@ type AssistantType = {
   assistant_name: string
 }
 
-const Chat = () => {
+type Props = {
+  chatId: string[];
+};
+
+const Chat = ({ chatId }: Props) => {
   const listRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -46,6 +51,7 @@ const Chat = () => {
 
   //Loading environmental variables
   const SERVER_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+  const CLIENT_ENDPOINT = process.env.NEXT_PUBLIC_CLIENT_BASE_URL;
   const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   const configuration = new Configuration({
     apiKey: API_KEY,
@@ -95,7 +101,7 @@ const Chat = () => {
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
-      user_id: '0',
+      user_id: 1,
       assistant_id: selectedAssistant,
       query: message
     })
@@ -180,11 +186,9 @@ const Chat = () => {
     setSelectedAssistant(e.target.value)
   }
 
-  const handleShare = () => {}
-
-  useEffect(() => {
-    axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
-      "user_id": 0
+  const handleShare = () => {
+    axios.post(`${SERVER_ENDPOINT}/share_chat`, {
+      user_id: 1
     }, {
       headers: {
         'ngrok-skip-browser-warning': "1",
@@ -194,7 +198,44 @@ const Chat = () => {
     })
       .then(res => {
         if (res.status === 201 && res.data) {
-          setHistory(res.data)
+          navigator.clipboard.writeText(CLIENT_ENDPOINT + '/' + res.data.history_id);
+          toast.success('Link copied!', {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
+        }
+      })
+      .catch(err => console.log(err));
+  }
+
+  useEffect(() => {
+    axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
+      user_id: 1,
+      history_id: chatId ? chatId[0] : chatId
+    }, {
+      headers: {
+        'ngrok-skip-browser-warning': "1",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+      .then(res => {
+        if (res.status === 201 && res.data) {
+          if (res.data.result === 'Server Error!') {
+            setMessages([{
+              id: 0,
+              sender: 'bot',
+              message: "Good Day! I'm your HealthCare Concierge, how may I help you?"
+            }])
+          }
+          else
+            setHistory(res.data)
         }
         if (res.status === 200 && res.data) {
           setMessages([{
@@ -242,7 +283,9 @@ const Chat = () => {
   }, [selectedAssistant])
 
   useEffect(() => {
-    setPrompt(transcript);
+    if (!loading) {
+      setPrompt(transcript);
+    }
   }, [transcript])
 
   return (
