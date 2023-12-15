@@ -38,7 +38,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
   }
 
   return (
-    <div className="flex flex-col mt-12 sm:mt-12">
+    <div className="flex flex-col mt-10">
       <div className={`flex flex-col gap-4 ${message.sender === "bot" ? "" : "items-end"}`}>
         <div className="md:max-w-[85%] max-w-[90%] text-slate-400 flex flex-col w-fit relative">
           <div>
