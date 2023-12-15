@@ -5,6 +5,8 @@ import Login from "../components/Login";
 import "../styles/globals.css";
 import "../styles/loading.css";
 import ClientProvider from "../components/ClientProvider";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default async function RootLayout({
   children,
@@ -31,6 +33,7 @@ export default async function RootLayout({
             </div>
           {/* )}
         </SessionProvider> */}
+        <ToastContainer />
       </body>
     </html>
   );
