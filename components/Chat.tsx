@@ -8,6 +8,7 @@ import { Configuration, OpenAIApi } from "openai";
 import 'regenerator-runtime/runtime'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type PrePrompt = {
   title: string,
@@ -16,7 +17,7 @@ type PrePrompt = {
 
 type History = {
   id: number,
-  user_id: number,
+  user_id: string,
   user_query: string,
   response: string
 }
@@ -39,6 +40,7 @@ type Props = {
 
 const Chat = ({ chatId }: Props) => {
   const listRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
@@ -101,7 +103,7 @@ const Chat = ({ chatId }: Props) => {
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
-      user_id: 1,
+      user_id: chatId ? chatId[0] : '',
       assistant_id: selectedAssistant,
       query: message
     })
@@ -120,6 +122,8 @@ const Chat = ({ chatId }: Props) => {
               prompt: one
             }
           }))
+          if (chatId !== res.data.chat_id)
+            router.push(`/${res.data.chat_id}`);
         }
         setLoading(false);
       })
@@ -187,37 +191,22 @@ const Chat = ({ chatId }: Props) => {
   }
 
   const handleShare = () => {
-    axios.post(`${SERVER_ENDPOINT}/share_chat`, {
-      user_id: 1
-    }, {
-      headers: {
-        'ngrok-skip-browser-warning': "1",
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      }
-    })
-      .then(res => {
-        if (res.status === 201 && res.data) {
-          navigator.clipboard.writeText(CLIENT_ENDPOINT + '/' + res.data.history_id);
-          toast.success('Link copied!', {
-            position: "top-right",
-            autoClose: 1000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
-        }
-      })
-      .catch(err => console.log(err));
+    navigator.clipboard.writeText(CLIENT_ENDPOINT + '/' + chatId);
+    toast.success('Link copied!', {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
   }
 
   useEffect(() => {
     axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
-      user_id: 1,
-      history_id: chatId ? chatId[0] : chatId
+      user_id: chatId ? chatId[0] : ''
     }, {
       headers: {
         'ngrok-skip-browser-warning': "1",

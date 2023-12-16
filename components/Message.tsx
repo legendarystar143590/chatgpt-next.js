@@ -31,11 +31,13 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
   const convertMarkdownLinksToHTML = (text: string) => {
     // Regular expression to match the Markdown link format
     // This regex is more forgiving and can handle some irregularities in the link format
-    const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)?/g;
+    // const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)?/g;
+    const markdownLinkRegex = /https:\/\/(\S+(\/\S+)*(\/)?)/g;
 
     // Replace Markdown links with HTML <a> tags
-    return text.replace(markdownLinkRegex, '<a href="$2" className="text-white underline underline-offset-2 hover:text-sky-700">$1</a>');
+    return text.replace(markdownLinkRegex, '<a href="https://$1" className="text-white underline underline-offset-2 hover:text-sky-700">Google Map</a>');
   }
+  console.log(message.message)
 
   return (
     <div className="flex flex-col mt-10">
@@ -52,16 +54,11 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                       type === "history" ? (
                         <>
                           <p className="text-lg">
-                            {
-                              message.message.replaceAll(/^\w{2}\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
-                                (one, index) => (
-                                  <span key={index}>
-                                    {parse(convertMarkdownLinksToHTML(one))}
-                                    <br />
-                                  </span>
-                                )
-                              )
-                            }
+                            <span>
+                              {parse(convertMarkdownLinksToHTML(message.message).replaceAll(/\n(\d\.\s)/g, '<br />$1 '))}
+                              <br />
+                            </span>
+                            
                           </p>
                           <div className="flex gap-4 mb-2 justify-end">
                             <button className="hover:text-sky-700" onClick={() => handleControl('copy')}>

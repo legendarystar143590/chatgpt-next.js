@@ -32,14 +32,7 @@ export function AnimationMessage({ text, scrollRef, closer }: Props) {
   return (
     <span className='text-lg'>
       {
-        displayedText.replaceAll(/^\w{2}\b(\d+)\.\s/g, '<br>$1. ').split('<br>').map(
-          (one, index) => (
-            <span key={index}>
-              {parse(one)}
-              <br />
-            </span>
-          )
-        )
+        parse(displayedText.replaceAll(/\n(\d\.\s)/g, '<br />$1 '))
       }
       {
         closer && showCloser && (
