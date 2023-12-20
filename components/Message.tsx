@@ -1,9 +1,9 @@
+import { RefObject, useEffect } from "react";
 // import { DocumentData } from "firebase/firestore";
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
 import parse from 'html-react-parser';
 import AnimationMessage from "./AnimationMessage";
 import BouncingDotsLoader from "./Loading";
-import { RefObject, useEffect } from "react";
 import { MessageType } from "./Chat";
 
 type Props = {
@@ -57,7 +57,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                               {parse(convertMarkdownLinksToHTML(message.message).replaceAll(/\n(\d\.\s)/g, '<br />$1 '))}
                               <br />
                             </span>
-                            
+
                           </p>
                           <div className="flex gap-4 mb-2 justify-end">
                             <button className="hover:text-sky-700" onClick={() => handleControl('copy')}>
