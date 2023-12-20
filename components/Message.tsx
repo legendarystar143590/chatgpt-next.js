@@ -2,7 +2,7 @@
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/solid";
 import parse from 'html-react-parser';
 import AnimationMessage from "./AnimationMessage";
-import BouncingDotsLoader from "./loading";
+import BouncingDotsLoader from "./Loading";
 import { RefObject, useEffect } from "react";
 import { MessageType } from "./Chat";
 
