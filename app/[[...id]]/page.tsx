@@ -7,6 +7,9 @@ type Props = {
 };
 
 const HomePage = ({ params: { id } }: Props) => {
+  if(!id) {
+    return <></>
+  }
   return (
     <div className="flex justify-center h-screen bg-gradient-to-r from-slate-700 to-slate-800 p-4">
       <div className="md:w-[70%] lg:w-[50%] h-full lg:p-6 p-3 w-full bg-slate-900 rounded-2xl">

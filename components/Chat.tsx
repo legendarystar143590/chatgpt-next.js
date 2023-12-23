@@ -29,16 +29,18 @@ export type MessageType = {
   closer?: string
 }
 
-type AssistantType = {
-  id: number,
-  assistant_name: string
-}
+// type AssistantType = {
+//   id: number,
+//   assistant_name: string
+// }
 
 type Props = {
   chatId: string[];
 };
 
 const Chat = ({ chatId }: Props) => {
+  const assistant_id = chatId[0];
+  const chat_id = chatId[1] ?? "";
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -47,8 +49,8 @@ const Chat = ({ chatId }: Props) => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<History[]>([]);
-  const [assistants, setAssistants] = useState<AssistantType[]>();
-  const [selectedAssistant, setSelectedAssistant] = useState('-1');
+  // const [assistants, setAssistants] = useState<AssistantType[]>();
+  // const [selectedAssistant, setSelectedAssistant] = useState('-1');
   // const { data: session } = useSession();
 
   //Loading environmental variables
@@ -103,8 +105,8 @@ const Chat = ({ chatId }: Props) => {
     setLoading(true);
 
     await axios.post(`${SERVER_ENDPOINT}/user_query`, {
-      user_id: chatId ? chatId[0] : '',
-      assistant_id: selectedAssistant,
+      chat_id: chat_id,
+      assistant_id: assistant_id,
       query: message
     })
       .then(res => {
@@ -122,8 +124,8 @@ const Chat = ({ chatId }: Props) => {
               prompt: one
             }
           }))
-          if (chatId !== res.data.chat_id)
-            router.push(`/${res.data.chat_id}`);
+          if (chat_id !== res.data.chat_id)
+            router.push(`/${assistant_id}/${res.data.chat_id}`);
         }
         setLoading(false);
       })
@@ -186,12 +188,12 @@ const Chat = ({ chatId }: Props) => {
     }
   }
 
-  const changeSelectedAssistant = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedAssistant(e.target.value)
-  }
+  // const changeSelectedAssistant = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setSelectedAssistant(e.target.value)
+  // }
 
   const handleShare = () => {
-    navigator.clipboard.writeText(CLIENT_ENDPOINT + '/' + chatId);
+    navigator.clipboard.writeText(CLIENT_ENDPOINT + '/' + assistant_id + '/' + chat_id);
     toast.success('Link copied!', {
       position: "top-right",
       autoClose: 1000,
@@ -206,7 +208,7 @@ const Chat = ({ chatId }: Props) => {
 
   useEffect(() => {
     axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
-      user_id: chatId ? chatId[0] : ''
+      user_id: chat_id
     }, {
       headers: {
         'ngrok-skip-browser-warning': "1",
@@ -236,26 +238,26 @@ const Chat = ({ chatId }: Props) => {
       })
       .catch(err => console.log(err));
 
-    axios.get(`${SERVER_ENDPOINT}/get_assistant`, {
-      headers: {
-        'ngrok-skip-browser-warning': "1",
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      }
-    })
-      .then(res => {
-        if (res.status === 200 && res.data) {
-          setAssistants(res.data);
-          setSelectedAssistant(res.data[0].id);
-        }
-      })
-      .catch(err => console.log(err));
+    // axios.get(`${SERVER_ENDPOINT}/get_assistant`, {
+    //   headers: {
+    //     'ngrok-skip-browser-warning': "1",
+    //     'Content-Type': 'application/json',
+    //     'Access-Control-Allow-Origin': '*',
+    //   }
+    // })
+    //   .then(res => {
+    //     if (res.status === 200 && res.data) {
+    //       setAssistants(res.data);
+    //       setSelectedAssistant(res.data[0].id);
+    //     }
+    //   })
+    //   .catch(err => console.log(err));
   }, [])
 
   useEffect(() => {
     axios.get(`${SERVER_ENDPOINT}/get_initial_prompts`, {
       params: {
-        assistant_id: selectedAssistant
+        assistant_id: assistant_id
       },
       headers: {
         'ngrok-skip-browser-warning': "1",
@@ -269,7 +271,7 @@ const Chat = ({ chatId }: Props) => {
         }
       })
       .catch(err => console.log(err));
-  }, [selectedAssistant])
+  }, [])
 
   useEffect(() => {
     if (!loading) {
@@ -280,13 +282,13 @@ const Chat = ({ chatId }: Props) => {
   return (
     <>
       <div className="flex justify-end gap-2">
-        <select className="bg-black text-sky-400 rounded-md p-2 text-sm border-none" value={selectedAssistant} onChange={e => changeSelectedAssistant(e)}>
+        {/* <select className="bg-black text-sky-400 rounded-md p-2 text-sm border-none" value={selectedAssistant} onChange={e => changeSelectedAssistant(e)}>
           {
             assistants && assistants.map(assistant => (
               <option key={assistant.id} value={assistant.id}>{assistant.assistant_name}</option>
             ))
           }
-        </select>
+        </select> */}
         <button className="bg-black text-sky-400 rounded-full p-2 flex items-center gap-1 hover:text-sky-700 sm:rounded-md" onClick={() => handleShare()}>
           <ShareIcon className="w-4 h-4" />
           <p className="hidden sm:block text-sm">Share</p>
@@ -351,7 +353,7 @@ const Chat = ({ chatId }: Props) => {
             </button>
             <button
               disabled={!prompt || loading}
-              className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed flex justify-center hidden sm:block"
+              className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed hidden sm:block"
               onClick={sendMessage}
             >
               <PaperAirplaneIcon className="h-5 w-5 -rotate-45" />
