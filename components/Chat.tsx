@@ -289,7 +289,11 @@ const Chat = ({ chatId }: Props) => {
             ))
           }
         </select> */}
-        <button className="bg-black text-sky-400 rounded-full p-2 flex items-center gap-1 hover:text-sky-700 sm:rounded-md" onClick={() => handleShare()}>
+        <button
+          aria-label="Share"
+          className="bg-black text-sky-400 rounded-full p-2 flex items-center gap-1 hover:text-sky-700 sm:rounded-md"
+          onClick={() => handleShare()}
+        >
           <ShareIcon className="w-4 h-4" />
           <p className="hidden sm:block text-sm">Share</p>
         </button>
@@ -337,6 +341,7 @@ const Chat = ({ chatId }: Props) => {
               placeholder="Type your message here..."
             />
             <button
+              aria-label="microphone"
               className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed flex justify-center items-center"
               onClick={handleMic}
             >
@@ -352,6 +357,7 @@ const Chat = ({ chatId }: Props) => {
               }
             </button>
             <button
+              aria-label="send message"
               disabled={!prompt || loading}
               className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed hidden sm:block"
               onClick={sendMessage}
