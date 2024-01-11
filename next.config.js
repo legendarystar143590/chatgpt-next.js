@@ -4,11 +4,12 @@ module.exports = {
   images: {
     domains: ["uploads-ssl.webflow.com"],
   },
-  experimental: {
-    appDir: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  i18n: {
+    locales: ["en"],
+    defaultLocale: "en",
   },
 }
 
