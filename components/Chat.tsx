@@ -2,8 +2,8 @@
 
 import Message from "./Message";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
-import { MicrophoneIcon, PaperAirplaneIcon, ShareIcon } from "@heroicons/react/24/solid";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { MicrophoneIcon, PaperAirplaneIcon, PaperClipIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { Configuration, OpenAIApi } from "openai";
 import 'regenerator-runtime/runtime'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
@@ -26,7 +26,8 @@ export type MessageType = {
   id: number,
   sender: string,
   message: string,
-  closer?: string
+  image?: string | null,
+  closer?: string,
 }
 
 // type AssistantType = {
@@ -47,6 +48,8 @@ const Chat = ({ chatId }: Props) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
   const [prompt, setPrompt] = useState("");
+  const [image, setImage] = useState<File>();
+  const [preview, setPreview] = useState<string | null>("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<History[]>([]);
   // const [assistants, setAssistants] = useState<AssistantType[]>();
@@ -75,12 +78,13 @@ const Chat = ({ chatId }: Props) => {
     setMessages(prev => [...prev, {
       id: prev.length ? prev[prev.length - 1].id + 1 : 1,
       sender: "you",
-      message: prompt
+      message: prompt,
+      image: preview
     }])
     setMessages(prev => [...prev, {
       id: prev[prev.length - 1].id + 1,
       sender: "bot",
-      message: 'loading...'
+      message: 'loading...',
     }])
     setPrompt("");
     sendQuestion(prompt);
@@ -90,12 +94,13 @@ const Chat = ({ chatId }: Props) => {
     setMessages(prev => [...prev, {
       id: prev.length ? prev[prev.length - 1].id + 1 : 1,
       sender: "you",
-      message: prePrompt.title
+      message: prePrompt.title,
+      image: preview
     }])
     setMessages(prev => [...prev, {
       id: prev[prev.length - 1].id + 1,
       sender: "bot",
-      message: 'loading...'
+      message: 'loading...',
     }])
     sendQuestion(prePrompt.prompt)
   }
@@ -104,11 +109,14 @@ const Chat = ({ chatId }: Props) => {
     resetTranscript();
     setLoading(true);
 
-    await axios.post(`${SERVER_ENDPOINT}/user_query`, {
-      chat_id: chat_id,
-      assistant_id: assistant_id,
-      query: message
-    })
+    const formData = new FormData();
+    formData.append('chat_id', chat_id);
+    formData.append('assistant_id', assistant_id);
+    formData.append('query', message);
+    if (image)
+      formData.append('image', image);
+
+    await axios.post(`${SERVER_ENDPOINT}/user_query`, formData)
       .then(res => {
         if (res.status === 201 && res.data) {
           const newValue = {
@@ -188,6 +196,22 @@ const Chat = ({ chatId }: Props) => {
     }
   }
 
+  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      if(e.target.files[0].size > 20 * 1024 * 1024) {
+        toast.error("File too large");
+        return;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(e.target.files[0]);
+
+      reader.onloadend = function () {
+        setPreview(reader.result as string);
+      }
+      setImage(e.target.files[0]);
+    }
+  }
+
   // const changeSelectedAssistant = (e: React.ChangeEvent<HTMLSelectElement>) => {
   //   setSelectedAssistant(e.target.value)
   // }
@@ -222,7 +246,7 @@ const Chat = ({ chatId }: Props) => {
             setMessages([{
               id: 0,
               sender: 'bot',
-              message: "Good Day! I'm your HealthCare Concierge, how may I help you?"
+              message: "Good Day! I'm your HealthCare Concierge, how may I help you?",
             }])
           }
           else
@@ -326,7 +350,7 @@ const Chat = ({ chatId }: Props) => {
           )
         }
         <div className="bg-slate-400/10 text-gray-400 rounded-lg text-md">
-          <div className="px-4 py-2 space-x-5 flex">
+          <div className="px-4 py-2 space-x-3 flex items-center">
             <input
               className="bg-transparent focus:outline-none flex-1 disabled:cursor-not-allowed disabled:text-gray-300 text-white"
               disabled={loading}
@@ -340,6 +364,16 @@ const Chat = ({ chatId }: Props) => {
               type="text"
               placeholder="Type your message here..."
             />
+            <label
+              htmlFor="image_upload"
+              className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded cursor-pointer disabled:cursor-not-allowed"
+            >
+              {
+                preview ? <img className="rounded-xl w-12 h-12" src={preview} alt="Image" /> : <PaperClipIcon className="h-5 w-5" />
+              }
+            </label>
+            <input id="image_upload" type="file" className="hidden" accept="image/*" disabled={loading} onChange={handleUpload} />
+
             <button
               aria-label="microphone"
               className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed flex justify-center items-center"
@@ -356,6 +390,7 @@ const Chat = ({ chatId }: Props) => {
                 )
               }
             </button>
+
             <button
               aria-label="send message"
               disabled={!prompt || loading}

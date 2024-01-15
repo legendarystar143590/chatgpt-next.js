@@ -37,6 +37,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
     // Replace Markdown links with HTML <a> tags
     return text.replace(markdownLinkRegex, '<a href="https://$1" className="text-white underline underline-offset-2 hover:text-sky-700">Google Map</a>');
   }
+  console.log(message)
 
   return (
     <div className="flex flex-col mt-10">
@@ -54,7 +55,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                         <>
                           <p className="text-lg">
                             <span>
-                              {parse(convertMarkdownLinksToHTML(message.message).replaceAll(/\n(\d\.\s)/g, '<br />$1 '))}
+                              {parse(convertMarkdownLinksToHTML(message.message).replaceAll(/\n(\d{1,3}\.\s)/g, '<br />$1 '))}
                               <br />
                             </span>
 
@@ -95,6 +96,9 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
               ) : (
                 <div>
                   <div className="px-4 py-2 rounded-md text-white bg-slate-400/10 flex flex-col gap-1">
+                    {message.image && (
+                      <img className="rounded-xl" src={message.image} alt="Image" />
+                    )}
                     <p className="text-lg">{message.message}</p>
                     <div className="flex gap-4 mb-2 justify-end">
                       <button className="hover:text-sky-700" onClick={() => handleControl('copy')}>
