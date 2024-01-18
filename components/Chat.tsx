@@ -200,7 +200,7 @@ const Chat = ({ chatId }: Props) => {
 
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      if (e.target.files[0].size > 20 * 1024 * 1024) {
+      if(e.target.files[0].size > 20 * 1024 * 1024) {
         toast.error("File too large");
         return;
       }
@@ -351,6 +351,7 @@ const Chat = ({ chatId }: Props) => {
             </ul>
           )
         }
+
         <div className="flex p-2 space-x-2 sm:px-4 sm:py-2 sm:space-x-3 bg-slate-400/10 text-gray-400 rounded-lg text-md">
           <input
             className="flex-1 bg-transparent w-24 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-300 text-white"
