@@ -37,7 +37,6 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
     // Replace Markdown links with HTML <a> tags
     return text.replace(markdownLinkRegex, '<a href="https://$1" className="text-white underline underline-offset-2 hover:text-sky-700">Google Map</a>');
   }
-  console.log(message)
 
   return (
     <div className="flex flex-col mt-10">

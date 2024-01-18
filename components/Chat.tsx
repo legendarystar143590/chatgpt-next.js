@@ -200,7 +200,7 @@ const Chat = ({ chatId }: Props) => {
 
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      if(e.target.files[0].size > 20 * 1024 * 1024) {
+      if (e.target.files[0].size > 20 * 1024 * 1024) {
         toast.error("File too large");
         return;
       }
