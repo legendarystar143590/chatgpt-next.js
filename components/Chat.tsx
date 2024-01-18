@@ -87,6 +87,8 @@ const Chat = ({ chatId }: Props) => {
       message: 'loading...',
     }])
     setPrompt("");
+    setPreview("");
+    setImage(undefined);
     sendQuestion(prompt);
   }
 
@@ -349,57 +351,56 @@ const Chat = ({ chatId }: Props) => {
             </ul>
           )
         }
-        <div className="bg-slate-400/10 text-gray-400 rounded-lg text-md">
-          <div className="px-4 py-2 space-x-3 flex items-center">
-            <input
-              className="bg-transparent focus:outline-none flex-1 disabled:cursor-not-allowed disabled:text-gray-300 text-white"
-              disabled={loading}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  sendMessage();
-                }
-              }}
-              type="text"
-              placeholder="Type your message here..."
-            />
-            <label
-              htmlFor="image_upload"
-              className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded cursor-pointer disabled:cursor-not-allowed"
-            >
-              {
-                preview ? <img className="rounded-xl w-12 h-12" src={preview} alt="Image" /> : <PaperClipIcon className="h-5 w-5" />
-              }
-            </label>
-            <input id="image_upload" type="file" className="hidden" accept="image/*" disabled={loading} onChange={handleUpload} />
 
-            <button
-              aria-label="microphone"
-              className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed flex justify-center items-center"
-              onClick={handleMic}
-            >
-              {
-                listening ? (
-                  <span className="relative flex h-5 w-5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-sky-500"></span>
-                  </span>
-                ) : (
-                  <MicrophoneIcon className="h-5 w-5" />
-                )
+        <div className="flex p-2 space-x-2 sm:px-4 sm:py-2 sm:space-x-3 bg-slate-400/10 text-gray-400 rounded-lg text-md">
+          <input
+            className="flex-1 bg-transparent w-24 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-300 text-white"
+            disabled={loading}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
               }
-            </button>
+            }}
+            type="text"
+            placeholder="Type your message here..."
+          />
+          <label
+            htmlFor="image_upload"
+            className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded cursor-pointer disabled:cursor-not-allowed"
+          >
+            {
+              preview ? <img className="rounded-xl w-12 h-12" src={preview} alt="Image" /> : <PaperClipIcon className="h-5 w-5" />
+            }
+          </label>
+          <input id="image_upload" type="file" className="hidden" accept="image/*" disabled={loading} onChange={handleUpload} />
 
-            <button
-              aria-label="send message"
-              disabled={!prompt || loading}
-              className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed hidden sm:block"
-              onClick={sendMessage}
-            >
-              <PaperAirplaneIcon className="h-5 w-5 -rotate-45" />
-            </button>
-          </div>
+          <button
+            aria-label="microphone"
+            className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed flex justify-center items-center"
+            onClick={handleMic}
+          >
+            {
+              listening ? (
+                <span className="relative flex h-5 w-5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-5 w-5 bg-sky-500"></span>
+                </span>
+              ) : (
+                <MicrophoneIcon className="h-5 w-5" />
+              )
+            }
+          </button>
+
+          <button
+            aria-label="send message"
+            disabled={!prompt || loading}
+            className="bg-transparent hover:opacity-50 text-white font-bold px-0 py-1 rounded disabled:cursor-not-allowed"
+            onClick={sendMessage}
+          >
+            <PaperAirplaneIcon className="h-5 w-5 -rotate-45" />
+          </button>
         </div>
       </div>
     </>

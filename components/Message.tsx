@@ -48,7 +48,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
               message.sender === 'bot' ? (
                 <>
                   <div className="w-14 h-14 absolute -top-11 left-1 rounded-full bg-slate-900"></div>
-                  <img src="/avatar.jpg" className="w-12 h-12 rounded-full absolute -top-10 left-2" alt="avatar" />
+                  <img src="/assistant.png" className="w-12 h-12 rounded-full absolute -top-10 left-2" alt="avatar" />
                   <div className="px-4 py-2 rounded-md text-sky-400 bg-sky-400/10 flex flex-col gap-1">
                     {
                       type === "history" ? (
@@ -110,7 +110,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type }: Props) =>
                     </div>
                   </div>
                   <div className="w-14 h-14 absolute -top-11 right-1 rounded-full bg-slate-900"></div>
-                  <img src="/avatar1.jpg" className="w-12 h-12 rounded-full absolute -top-10 right-2" alt="avatar" />
+                  <img src="/user.png" className="w-12 h-12 rounded-full absolute -top-10 right-2" alt="avatar" />
                 </div>
               )
             }
