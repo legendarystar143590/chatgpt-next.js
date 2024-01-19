@@ -52,6 +52,8 @@ const Chat = ({ chatId }: Props) => {
   const [preview, setPreview] = useState<string | null>("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<History[]>([]);
+  const [assistantAvatar, setAssistantAvatar] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
   // const [assistants, setAssistants] = useState<AssistantType[]>();
   // const [selectedAssistant, setSelectedAssistant] = useState('-1');
   // const { data: session } = useSession();
@@ -200,7 +202,7 @@ const Chat = ({ chatId }: Props) => {
 
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      if(e.target.files[0].size > 20 * 1024 * 1024) {
+      if (e.target.files[0].size > 20 * 1024 * 1024) {
         toast.error("File too large");
         return;
       }
@@ -231,6 +233,25 @@ const Chat = ({ chatId }: Props) => {
       theme: "colored",
     });
   }
+
+  useEffect(() => {
+    axios.post(`${SERVER_ENDPOINT}/get_assistant`, {
+      assistant_id
+    }, {
+      headers: {
+        'ngrok-skip-browser-warning': "1",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+    .then(res => {
+      if(res.data) {
+        setAssistantAvatar(res.data.assistant_avatar)
+        setUserAvatar(res.data.user_avatar)
+      }
+    })
+    .catch((err) => console.log(err))
+  }, [])
 
   useEffect(() => {
     axios.post(`${SERVER_ENDPOINT}/get_chat_history`, {
@@ -327,12 +348,12 @@ const Chat = ({ chatId }: Props) => {
       <div className="flex-1 overflow-y-auto overflow-x-hidden pt-0">
         {history.map((message, index) => (
           <div key={index}>
-            <Message message={{ id: message.id, sender: 'you', message: message.user_query }} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
-            <Message message={{ id: message.id, sender: 'bot', message: message.response }} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
+            <Message message={{ id: message.id, sender: 'you', message: message.user_query }} avatar={userAvatar} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
+            <Message message={{ id: message.id, sender: 'bot', message: message.response }} avatar={assistantAvatar} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="history" />
           </div>
         ))}
         {messages.map((message, index) => (
-          <Message key={index} message={message} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="message" />
+          <Message key={index} message={message} avatar={message.sender === 'you' ? userAvatar : assistantAvatar} loading={loading} deleteMessage={deleteMessage} scrollRef={listRef} type="message" />
         ))}
         <div ref={listRef}></div>
       </div>
