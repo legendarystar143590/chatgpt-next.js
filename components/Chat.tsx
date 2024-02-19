@@ -8,7 +8,6 @@ import { Configuration, OpenAIApi } from "openai";
 import 'regenerator-runtime/runtime'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
 type PrePrompt = {
   title: string,
@@ -41,9 +40,8 @@ type Props = {
 
 const Chat = ({ chatId }: Props) => {
   const assistant_id = chatId[0];
-  const chat_id = chatId[1] ?? "";
+  const chat_id = chatId[1];
   const listRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [prePrompt, setPrePrompt] = useState<PrePrompt[]>();
@@ -136,8 +134,6 @@ const Chat = ({ chatId }: Props) => {
               prompt: one
             }
           }))
-          if (chat_id !== res.data.chat_id)
-            router.push(`/${assistant_id}/${res.data.chat_id}`);
         }
         setLoading(false);
       })
