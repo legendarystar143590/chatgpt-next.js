@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+import { redirect } from "next/navigation";
 import Chat from "../../components/Chat";
 
 type Props = {
@@ -8,7 +10,10 @@ type Props = {
 
 const HomePage = ({ params: { id } }: Props) => {
   if(!id) {
-    return <></>
+    redirect('/1/' + randomUUID())
+  }
+  if(!id[1]) {
+    redirect('/' + id[0] + '/' + randomUUID())
   }
   return (
     <div className="flex justify-center h-screen bg-gradient-to-r from-slate-700 to-slate-800 p-4">
