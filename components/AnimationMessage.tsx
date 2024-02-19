@@ -32,7 +32,7 @@ export function AnimationMessage({ text, scrollRef, closer }: Props) {
   return (
     <span className='text-lg'>
       {
-        parse(displayedText.replaceAll(/\n(\d{1,3}\.\s)/g, '<br />$1 '))
+        parse(displayedText)
       }
       {
         closer && showCloser && (

@@ -29,14 +29,20 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type, avatar }: P
     }
   }
 
-  const convertMarkdownLinksToHTML = (text: string) => {
-    // Regular expression to match the Markdown link format
-    // This regex is more forgiving and can handle some irregularities in the link format
-    // const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)?/g;
-    const markdownLinkRegex = /https:\/\/(\S+(\/\S+)*(\/)?)/g;
-
+  const beautifyString = (text: string) => {
     // Replace Markdown links with HTML <a> tags
-    return text.replace(markdownLinkRegex, '<a href="https://$1" className="text-white underline underline-offset-2 hover:text-sky-700">Link</a>');
+    const markdownLinkRegex = /\https:\/\/(\S+(\/\S+)*(\/)[^)\]]+)/g;
+    // const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)?/g;
+    const LinkParsedString = text.replace(markdownLinkRegex, '<a href="https://$1" className="text-white underline underline-offset-2 hover:text-sky-700">Link</a>');
+    
+    const markdownOrderRegex = /\n(\d{1,3}\.\s)/g;
+    const orderParsedString = LinkParsedString.replaceAll(markdownOrderRegex, '<br />$1 ');
+
+    const markdownBoldRegex = /\*\*([^\*]+)\*\*/g;
+    const boldParsedString = orderParsedString.replaceAll(markdownBoldRegex, '<b>$1</b>');
+    
+    const result = boldParsedString;
+    return result;
   }
 
   return (
@@ -55,7 +61,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type, avatar }: P
                         <>
                           <p className="text-lg">
                             <span>
-                              {parse(convertMarkdownLinksToHTML(message.message).replaceAll(/\n(\d{1,3}\.\s)/g, '<br />$1 '))}
+                              {parse(beautifyString(message.message))}
                               <br />
                             </span>
 
@@ -74,7 +80,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type, avatar }: P
                           <BouncingDotsLoader />
                         ) : (
                           <>
-                            <AnimationMessage text={convertMarkdownLinksToHTML(message.message)} scrollRef={scrollRef} closer={message.closer} />
+                            <AnimationMessage text={beautifyString(message.message)} scrollRef={scrollRef} closer={message.closer} />
                             {
                               message.id !== 0 && (
                                 <div className="flex gap-4 mb-2 justify-end">
