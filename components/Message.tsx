@@ -31,16 +31,23 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type, avatar }: P
 
   const beautifyString = (text: string) => {
     // Replace Markdown links with HTML <a> tags
-    const markdownLinkRegex = /\https:\/\/(\S+(\/\S+)*(\/)[^)\]]+)/g;
+    // const markdownLinkRegex = /[[|(]\https:\/\/(\S+(\/\S+)*(\/)[^)\]]+)/g;
     // const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)?/g;
-    const LinkParsedString = text.replace(markdownLinkRegex, '<a href="https://$1" className="text-white underline underline-offset-2 hover:text-sky-700">Link</a>');
-    
+    const markdownLinkRegex = [/\[(https?:\/\/\S+?)\]\((https?:\/\/\S+?)\)/g, /\[(https?:\/\/(\S+)?)\]/g, /\((https?:\/\/(\S+)?)\)/g];
+    let LinkParsedString = text;
+    markdownLinkRegex.map(one =>
+      LinkParsedString = LinkParsedString.replace(one, '<a href="$1" className="text-white underline underline-offset-2 hover:text-sky-700">LINK</a>')
+    );
+
     const markdownOrderRegex = /\n(\d{1,3}\.\s)/g;
     const orderParsedString = LinkParsedString.replaceAll(markdownOrderRegex, '<br />$1 ');
 
+    const markdownHyphenRegex = /(\s\-\s)/g;
+    const hyphenParsedString = orderParsedString.replaceAll(markdownHyphenRegex, '<br />$1 ');
+
     const markdownBoldRegex = /\*\*([^\*]+)\*\*/g;
-    const boldParsedString = orderParsedString.replaceAll(markdownBoldRegex, '<b>$1</b>');
-    
+    const boldParsedString = hyphenParsedString.replaceAll(markdownBoldRegex, '<b>$1</b>');
+
     const result = boldParsedString;
     return result;
   }
