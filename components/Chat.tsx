@@ -29,11 +29,6 @@ export type MessageType = {
   closer?: string,
 }
 
-// type AssistantType = {
-//   id: number,
-//   assistant_name: string
-// }
-
 type Props = {
   chatId: string[];
 };
@@ -121,10 +116,12 @@ const Chat = ({ chatId }: Props) => {
     await axios.post(`${SERVER_ENDPOINT}/user_query`, formData)
       .then(res => {
         if (res.status === 201 && res.data) {
+          console.log("response => ", res.data)
           const newValue = {
             id: res.data.chat_id,
             sender: "bot",
             message: res.data?.response,
+            image: res.data?.image,
             closer: res.data?.closer
           };
           setMessages(preArray => [...preArray.slice(0, -1), newValue]);
