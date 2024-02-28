@@ -116,7 +116,6 @@ const Chat = ({ chatId }: Props) => {
     await axios.post(`${SERVER_ENDPOINT}/user_query`, formData)
       .then(res => {
         if (res.status === 201 && res.data) {
-          console.log("response => ", res.data)
           const newValue = {
             id: res.data.chat_id,
             sender: "bot",
