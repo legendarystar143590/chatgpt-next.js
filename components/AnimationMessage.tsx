@@ -3,11 +3,12 @@ import parse from 'html-react-parser';
 
 type Props = {
   text: string,
+  image: string,
   closer?: string
   scrollRef: RefObject<HTMLDivElement>
 };
 
-export function AnimationMessage({ text, scrollRef, closer }: Props) {
+export function AnimationMessage({ text, image, scrollRef, closer }: Props) {
   const [displayedText, setDisplayedText] = useState('');
   const [showCloser, setShowCloser] = useState(false);
 
@@ -42,6 +43,9 @@ export function AnimationMessage({ text, scrollRef, closer }: Props) {
           </>
         )
       }
+      {image && (
+        <img className="rounded-xl py-2" src={image} alt="Image" />
+      )}
     </span>
   )
 };

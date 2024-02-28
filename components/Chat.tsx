@@ -29,11 +29,6 @@ export type MessageType = {
   closer?: string,
 }
 
-// type AssistantType = {
-//   id: number,
-//   assistant_name: string
-// }
-
 type Props = {
   chatId: string[];
 };
@@ -125,6 +120,7 @@ const Chat = ({ chatId }: Props) => {
             id: res.data.chat_id,
             sender: "bot",
             message: res.data?.response,
+            image: res.data?.image,
             closer: res.data?.closer
           };
           setMessages(preArray => [...preArray.slice(0, -1), newValue]);

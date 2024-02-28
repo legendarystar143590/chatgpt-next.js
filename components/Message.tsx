@@ -87,7 +87,7 @@ const Message = ({ message, loading, deleteMessage, scrollRef, type, avatar }: P
                           <BouncingDotsLoader />
                         ) : (
                           <>
-                            <AnimationMessage text={beautifyString(message.message)} scrollRef={scrollRef} closer={message.closer} />
+                            <AnimationMessage text={beautifyString(message.message)} scrollRef={scrollRef} closer={message.closer} image={message.image ?? ""} />
                             {
                               message.id !== 0 && (
                                 <div className="flex gap-4 mb-2 justify-end">
